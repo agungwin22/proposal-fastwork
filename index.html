@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Template Proposal Fastwork — Agung</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0d;
+      --surface:   #161616;
+      --border:    #2a2a2a;
+      --accent:    #f5a623;
+      --accent2:   #e84545;
+      --text:      #e8e8e8;
+      --muted:     #888;
+      --radius:    12px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 16px 60px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .header .badge {
+      display: inline-block;
+      background: rgba(245,166,35,.12);
+      border: 1px solid rgba(245,166,35,.3);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      font-size: clamp(22px, 5vw, 32px);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .header h1 span { color: var(--accent); }
+    .header p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+    }
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    /* ── EDITABLE FIELDS ── */
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      background: #1e1e1e;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color .2s;
+      resize: vertical;
+    }
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--accent);
+    }
+    .field textarea { min-height: 100px; line-height: 1.6; }
+
+    /* ── PROPOSAL PREVIEW ── */
+    #preview {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    #preview .highlight { color: var(--accent); font-weight: 600; }
+    #preview .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    /* ── TIPS ── */
+    .tips { list-style: none; }
+    .tips li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .tips li:last-child { border-bottom: none; }
+    .tips li .dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn:hover { opacity: .85; }
+
+    /* ── COPY TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #1e1e1e;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform .3s ease, opacity .3s ease;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .btn { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">✦ Template Proposal Fastwork</div>
+    <h1>Tulis Proposal <span>Sekali,</span><br/>Menang Berkali-kali</h1>
+    <p>Isi form di bawah → proposal otomatis terbentuk → copy & kirim</p>
+  </div>
+
+  <!-- FORM INPUT -->
+  <div class="card">
+    <div class="card-label">✦ Data Klien & Project</div>
+
+    <div class="field">
+      <label>Nama Klien / Panggilan</label>
+      <input type="text" id="clientName" placeholder="cth: Kak Budi / Pak Hendra" oninput="buildProposal()"/>
+    </div>
+
+    <div class="field">
+      <label>Jenis Bisnis / Usaha Klien</label>
+      <input type="text" id="businessType" placeholder="cth: Toko Baju Online / Jasa Catering / Salon Kecantikan" oninput="buildProposal()"/>
+    </div>
+
+    <div class="field">
+      <label>Kebutuhan Spesifik yang Disebutkan Klien</label>
+      <textarea id="clientNeed" placeholder="cth: Butuh landing page untuk promosi produk hijab, ada tombol WA, tampilan elegan" oninput="buildProposal()"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Paket yang Kamu Tawarkan</label>
+      <select id="packageOffer" onchange="buildProposal()">
+        <option value="Basic — Rp 500.000">Basic — Rp 500.000</option>
+        <option value="Standard — Rp 750.000">Standard — Rp 750.000</option>
+        <option value="Pro — Rp 1.000.000">Pro — Rp 1.000.000</option>
+        <option value="Bisnis — Rp 1.500.000">Bisnis — Rp 1.500.000</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Estimasi Waktu Pengerjaan</label>
+      <select id="duration" onchange="buildProposal()">
+        <option value="2–3 hari kerja">2–3 hari kerja</option>
+        <option value="3–5 hari kerja">3–5 hari kerja</option>
+        <option value="5–7 hari kerja">5–7 hari kerja</option>
+        <option value="7–10 hari kerja">7–10 hari kerja</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Portofolio / Contoh Kerja yang Relevan (URL)</label>
+      <input type="text" id="portfolio" placeholder="cth: webku.ai atau link demo project" oninput="buildProposal()"/>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="card">
+    <div class="card-label">✦ Preview Proposal</div>
+    <div id="preview">Isi form di atas untuk melihat preview proposal...</div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="btn-row" style="margin-bottom:20px;">
+    <button class="btn btn-primary" onclick="copyProposal()">📋 Copy Proposal</button>
+    <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset Form</button>
+  </div>
+
+  <!-- TIPS -->
+  <div class="card">
+    <div class="section-title">Tips Apply Job di Fastwork</div>
+    <ul class="tips">
+      <li><span class="dot"></span>Jangan copy-paste ke semua job — sesuaikan nama klien & kebutuhan spesifiknya tiap kali apply.</li>
+      <li><span class="dot"></span>Baca deskripsi job sampai habis sebelum apply — mention 1 detail spesifik dari brief klien di proposal kamu.</li>
+      <li><span class="dot"></span>Selalu lampirkan portofolio yang relevan dengan jenis bisnis klien.</li>
+      <li><span class="dot"></span>Hindari proposal terlalu panjang — klien lebih suka yang langsung to the point.</li>
+      <li><span class="dot"></span>Respon cepat setelah klien balas — response time tinggi = ranking listing naik.</li>
+    </ul>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast">✓ Proposal berhasil dicopy!</div>
+
+  <script>
+    function buildProposal() {
+      const name     = document.getElementById('clientName').value.trim() || '[Nama Klien]';
+      const biz      = document.getElementById('businessType').value.trim() || '[Jenis Bisnis]';
+      const need     = document.getElementById('clientNeed').value.trim() || '[kebutuhan klien]';
+      const pkg      = document.getElementById('packageOffer').value;
+      const dur      = document.getElementById('duration').value;
+      const porto    = document.getElementById('portfolio').value.trim();
+
+      const portoLine = porto
+        ? `\nSebagai referensi, kamu bisa lihat contoh hasil kerja saya di: ${porto}`
+        : '';
+
+      const text = `Halo ${name}! 👋
+
+Saya Agung, web developer spesialis landing page untuk bisnis & UMKM Indonesia.
+
+Saya sudah baca kebutuhan ${name} — ${biz} butuh ${need}. Saya yakin bisa bantu wujudkan itu dengan hasil yang profesional dan sesuai ekspektasi.
+
+Yang akan saya kerjakan:
+• Landing page responsive & mobile-friendly
+• Desain modern sesuai identitas brand ${biz}
+• Tombol WhatsApp / CTA yang langsung bisa diklik
+• Dibangun dengan HTML, Tailwind CSS & JavaScript
+• File siap deploy setelah selesai
+${portoLine}
+
+Saya tawarkan paket ${pkg} dengan estimasi pengerjaan ${dur}. Harga bisa didiskusikan sesuai kebutuhan finalnya.
+
+Saya komunikatif, tepat waktu, dan siap revisi sampai ${name} puas. Boleh kita diskusi dulu sebelum mulai?
+
+Ditunggu ya! 🙏`;
+
+      const preview = document.getElementById('preview');
+      preview.textContent = text;
+    }
+
+    function copyProposal() {
+      const preview = document.getElementById('preview').textContent;
+      if (preview === 'Isi form di atas untuk melihat preview proposal...') return;
+      navigator.clipboard.writeText(preview).then(() => showToast());
+    }
+
+    function resetForm() {
+      ['clientName','businessType','clientNeed','portfolio'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('packageOffer').selectedIndex = 0;
+      document.getElementById('duration').selectedIndex = 0;
+      document.getElementById('preview').textContent = 'Isi form di atas untuk melihat preview proposal...';
+    }
+
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Build on load with defaults
+    buildProposal();
+  </script>
+</body>
+</html>
